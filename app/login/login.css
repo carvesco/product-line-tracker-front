@@ -1,0 +1,80 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+p {
+  margin-bottom: 30px;
+}
+
+.login-form {
+  margin: 0;
+  display: flex;
+  width: 40%;
+  flex-direction: column;
+  border-radius: 5px;
+  background-color: #60463b;
+  color: wheat;
+  padding: 10px;
+  gap: 12px;
+}
+
+.input-field {
+  padding: 8px;
+  border: 1px solid wheat;
+  border-radius: 4px;
+}
+
+.submit-button {
+  padding: 10px;
+  background-color: #4caf50;
+  color: wheat;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.loader {
+  width: 38px;
+  height: 38px;
+  border: 5px solid wheat;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 300px;
+  text-align: center;
+}

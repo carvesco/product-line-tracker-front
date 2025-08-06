@@ -1,0 +1,102 @@
+.tracker-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 10px;
+  background-color: #60463b;
+  border-bottom: 1px solid #ddd;
+  color: wheat;
+  font-size: 1.5rem;
+}
+.header-section {
+  display: flex;
+  flex-direction: row;
+  margin-right: 20px;
+}
+.tracker-content {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 10px;
+  gap: 20px;
+}
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
+  width: 40%;
+  border: 2px solid yellowgreen;
+  font-size: 7rem;
+}
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
+  width: 40%;
+}
+.pause-button {
+  width: 350px;
+  height: 350px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  border: 2px solid darkred;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 5rem;
+}
+.defects-input {
+  border: 1px solid #4caf50;
+  padding: 10px;
+  border-radius: 4px;
+}
+.next-button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: wheat;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 300px;
+  text-align: center;
+}
+.modal-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+.modal-actions button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: wheat;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
