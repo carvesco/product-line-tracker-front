@@ -1,0 +1,37 @@
+.resume-button-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* Changed from 100vh to 100vw for full width */
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* High z-index to appear above everything */
+}
+
+.resume-button {
+  width: 350px;
+  height: 350px;
+  background-color: #4caf50;
+  color: wheat;
+  border-radius: 50%;
+  border: 2px solid #267628;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 4rem;
+  font-weight: bold;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
+  transition: all 0.3s ease; /* Smooth hover transition */
+}
+
+.resume-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05); /* Slight scale on hover */
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+.resume-button:active {
+  transform: scale(0.98); /* Slight shrink when clicked */
+}

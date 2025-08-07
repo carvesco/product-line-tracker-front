@@ -1,0 +1,24 @@
+.pause-button {
+  width: 350px;
+  height: 350px;
+  background-color: #d31313;
+  color: white;
+  border-radius: 50%;
+  border: 2px solid #890b0b;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 4rem;
+  font-weight: bold;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
+  transition: all 0.3s ease; /* Smooth hover transition */
+}
+
+.pause-button:hover {
+  background-color: #f12f2f;
+  transform: scale(1.05); /* Slight scale on hover */
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+.pause-button:active {
+  transform: scale(0.98); /* Slight shrink when clicked */
+}

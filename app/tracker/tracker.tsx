@@ -3,6 +3,8 @@ import "./tracker.css";
 import TimeExceededModal from "./timeExceededModal";
 import { NavLink } from "react-router";
 import axios from "axios";
+import PauseButton from "./pauseButton/pauseButton";
+import ResumeButton from "./resumeButton/resumeButton";
 const Tracker = () => {
   const [timeExceeded, setTimeExceeded] = useState(false);
   const [buildData, setBuildData] = useState({
@@ -11,9 +13,10 @@ const Tracker = () => {
     numberOfParts: "",
     timePerPart: "",
   });
-  const [timeRemaining, setTimeRemaining] = useState(0); // Time in seconds
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [defects, setDefects] = useState(0);
   const [isSessionActive, setIsSessionActive] = useState(false);
   //Get build data from localStorage
   useEffect(() => {
@@ -21,6 +24,7 @@ const Tracker = () => {
     const buildNumber = localStorage.getItem("buildNumber") ?? "";
     const numberOfParts = localStorage.getItem("numberOfParts") ?? "";
     const timePerPart = localStorage.getItem("timePerPart") ?? "";
+    const defects = localStorage.getItem("defects") ?? "0";
 
     setBuildData({
       loginId,
@@ -29,6 +33,7 @@ const Tracker = () => {
       timePerPart,
     });
     setIsRunning(true); // Start the timer immediately
+    setDefects(Number(defects));
   }, []);
   //get remaining time from server
   useEffect(() => {
@@ -40,6 +45,7 @@ const Tracker = () => {
         let remainingTime = await axios.get(
           `http://localhost:3000/session/time-left?loginId=${buildData.loginId}&buildNumber=${buildData.buildNumber}`
         );
+        setIsPaused(remainingTime.data.session.isPaused);
         setIsSessionActive(true);
         setTimeRemaining(Math.floor(remainingTime.data.timeLeft / 1000)); // Convert milliseconds to seconds
       } catch (error) {
@@ -48,7 +54,7 @@ const Tracker = () => {
     };
 
     getRemainingTime();
-  }, [buildData.loginId, buildData.buildNumber]);
+  }, [buildData.loginId, buildData.buildNumber, isPaused]);
   // Timer logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -92,24 +98,29 @@ const Tracker = () => {
         <div className="tracker-content">
           <div className="timer-container">{formatTime(timeRemaining)}</div>
           <div className="controls-container">
-            <button className="pause-button">PAUSE</button>
+            <PauseButton setIsPaused={setIsPaused} />
             <input
               className="defects-input"
               type="number"
               placeholder="# of Defects"
+              onChange={(e) => setDefects(Number(e.target.value))}
+              value={defects}
             />
-            <NavLink className="next-button" to="/submission">
+            <NavLink
+              className="next-button"
+              to="/submission"
+              onClick={() => {
+                localStorage.setItem("defects", defects.toString());
+              }}
+            >
               NEXT
             </NavLink>
-            {/*  <button onClick={handleTimeExceeded} className="next-button">
-            NEXT
-          </button> */}
           </div>
         </div>
       ) : (
         <span className="loader"></span>
       )}
-
+      {isPaused && <ResumeButton setIsPaused={setIsPaused} />}
       {timeExceeded && (
         <TimeExceededModal onClose={() => setTimeExceeded(false)} />
       )}
