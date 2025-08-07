@@ -28,8 +28,8 @@ export const action: ActionFunction = async ({ request }) => {
     buildData = {
       loginId: loginId,
       buildNumber: buildNumber,
-      numberOfParts: res.data.buildData.number_of_parts,
-      timePerPart: res.data.buildData.time_per_part,
+      numberOfParts: res.data.buildData.numberOfParts,
+      timePerPart: res.data.buildData.timePerPart,
     };
     console.log("Received build data:", buildData);
   } catch (error) {
@@ -104,7 +104,7 @@ const BuildDataModal = ({
   onClose: () => void;
   buildData: any;
 }) => {
-  const handleStartClick = () => {
+  const handleStartClick = async () => {
     // Save to localStorage
     localStorage.setItem("loginId", buildData?.loginId || "");
     localStorage.setItem(
@@ -119,6 +119,16 @@ const BuildDataModal = ({
       "timePerPart",
       buildData?.timePerPart?.toString() || ""
     );
+    try {
+      // Notify backend that session has started
+      await axios.post("http://localhost:3000/session/start", {
+        loginId: buildData?.loginId,
+        buildNumber: buildData?.buildNumber,
+      });
+      console.log("Session started successfully");
+    } catch (error) {
+      console.error("Error starting session:", error);
+    }
   };
   return (
     <div className="modal">
