@@ -1,38 +1,47 @@
 import {
   Form,
-  redirect,
   type ActionFunction,
   useActionData,
   useNavigation,
   NavLink,
 } from "react-router";
 import "./login.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import axios from "axios";
 
-// Export the action function outside the component
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const loginId = formData.get("LoginId");
-  const buildNumber = formData.get("buildNumber");
+  const buildNumber = Number(formData.get("buildNumber"));
 
   console.log("Login attempt:", { loginId, buildNumber });
-
-  // Here you would typically:
-  // 1. Validate the data
-  // 2. Make API call to authenticate
-  // 3. Handle success/error responses
-
-  // Return data to trigger modal opening
-  if (loginId && buildNumber) {
-    return { success: true, showModal: true, loginId, buildNumber };
+  let buildData;
+  if (!loginId || !buildNumber) {
+    return { error: "Please fill in all fields" };
   }
-
-  // Return error response if validation fails
-  return { error: "Please fill in all fields" };
+  try {
+    let res = await axios.post("http://localhost:3000/session/", {
+      loginId,
+      buildNumber,
+    });
+    console.log("Received response from server:", res.data);
+    buildData = {
+      loginId: loginId,
+      buildNumber: buildNumber,
+      numberOfParts: res.data.buildData.number_of_parts,
+      timePerPart: res.data.buildData.time_per_part,
+    };
+    console.log("Received build data:", buildData);
+  } catch (error) {
+    console.error("Error during login:", error);
+    return { error: "Login failed. Please try again." };
+  }
+  return { success: true, showModal: true, buildData };
 };
 
 const login = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [buildData, setBuildData] = useState(null);
   const actionData = useActionData() as any;
   const navigation = useNavigation();
 
@@ -43,6 +52,7 @@ const login = () => {
   useEffect(() => {
     if (actionData?.showModal) {
       setIsModalOpen(true);
+      setBuildData(actionData.buildData);
     }
   }, [actionData]);
 
@@ -74,7 +84,12 @@ const login = () => {
           <p>Processing your request...</p>
         </div>
       )}
-      {isModalOpen && <BuildDataModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <BuildDataModal
+          onClose={() => setIsModalOpen(false)}
+          buildData={buildData}
+        />
+      )}
       {actionData?.error && (
         <div className="error-message">{actionData.error}</div>
       )}
@@ -82,14 +97,44 @@ const login = () => {
   );
 };
 
-const BuildDataModal = ({ onClose }: { onClose: () => void }) => {
+const BuildDataModal = ({
+  onClose,
+  buildData,
+}: {
+  onClose: () => void;
+  buildData: any;
+}) => {
+  const handleStartClick = () => {
+    // Save to localStorage
+    localStorage.setItem("loginId", buildData?.loginId || "");
+    localStorage.setItem(
+      "buildNumber",
+      buildData?.buildNumber?.toString() || ""
+    );
+    localStorage.setItem(
+      "numberOfParts",
+      buildData?.numberOfParts?.toString() || ""
+    );
+    localStorage.setItem(
+      "timePerPart",
+      buildData?.timePerPart?.toString() || ""
+    );
+  };
   return (
     <div className="modal">
       <div className="modal-content">
         <h2>Build Data</h2>
-        <p>This modal will display build data.</p>
-        <NavLink to="/tracker">Start</NavLink>
-        <button onClick={onClose}>Close</button>
+        <p>Build Number: {buildData?.buildNumber}</p>
+        <p>Number of Parts: {buildData?.numberOfParts}</p>
+        <p>Time per Part: {buildData?.timePerPart}</p>
+        <NavLink
+          className="start-button"
+          to="/tracker"
+          onClick={handleStartClick}
+        >
+          Start
+        </NavLink>
+        {/*         <button onClick={onClose}>Close</button> */}
       </div>
     </div>
   );
