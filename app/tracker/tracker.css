@@ -10,6 +10,7 @@
   color: wheat;
   font-size: 1rem;
 }
+
 .header-section {
   display: flex;
   flex-direction: row;
@@ -80,7 +81,8 @@
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #795f5f;
+  color: wheat;
   padding: 20px;
   border-radius: 5px;
   width: 300px;
@@ -130,5 +132,25 @@
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .tracker-header {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .tracker-content {
+    flex-direction: column;
+    align-items: center;
+  }
+  .timer-container {
+    font-size: 5rem;
+  }
+  .time-exceeded {
+    font-size: 5rem;
   }
 }

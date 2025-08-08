@@ -11,6 +11,7 @@ h1 {
 }
 p {
   margin-bottom: 30px;
+  text-align: center;
 }
 
 .login-form {
@@ -23,6 +24,11 @@ p {
   color: wheat;
   padding: 10px;
   gap: 12px;
+}
+@media screen and (max-width: 768px) {
+  .login-form {
+    width: 80%;
+  }
 }
 
 .input-field {
@@ -48,6 +54,13 @@ p {
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+}
+@media screen and (max-width: 768px) {
+  .loader {
+    width: 50px;
+    height: 50px;
+    border-width: 6px;
+  }
 }
 
 @keyframes rotation {
