@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./tracker.css";
 import TimeExceededModal from "./timeExceededModal";
 import { NavLink, useNavigate } from "react-router";
@@ -22,6 +22,21 @@ const Tracker = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [defects, setDefects] = useState(0);
   const [isSessionActive, setIsSessionActive] = useState(false);
+  const exceededRequestSent = useRef(false);
+  const ExceededTimeRequest = async () => {
+    if (exceededRequestSent.current) {
+      return;
+    }
+
+    exceededRequestSent.current = true;
+    const loginId = localStorage.getItem("loginId") ?? "";
+    const buildNumber = localStorage.getItem("buildNumber") ?? "";
+    await axios.post("http://localhost:3000/session/exceeded", {
+      loginId,
+      buildNumber,
+    });
+  };
+
   //Get build data from localStorage
   useEffect(() => {
     const loginId = localStorage.getItem("loginId") ?? "";
@@ -73,6 +88,7 @@ const Tracker = () => {
             return prevTime + 1;
           }
           if (prevTime <= 1) {
+            ExceededTimeRequest();
             setTimeExceeded(true);
             setShowTimeModal(true);
             return prevTime + 1;
