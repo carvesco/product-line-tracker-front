@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import "./tracker.css";
 import TimeExceededModal from "./timeExceededModal";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import axios from "axios";
 import PauseButton from "./pauseButton/pauseButton";
 import ResumeButton from "./resumeButton/resumeButton";
+import { formatTime } from "./timeExceededModal";
 const Tracker = () => {
+  const TIMEOUT = 30;
+  const navigate = useNavigate();
   const [timeExceeded, setTimeExceeded] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
   const [buildData, setBuildData] = useState({
     loginId: "",
     buildNumber: "",
@@ -32,13 +36,13 @@ const Tracker = () => {
       numberOfParts,
       timePerPart,
     });
-    setIsRunning(true); // Start the timer immediately
+    setIsRunning(true);
     setDefects(Number(defects));
   }, []);
   //get remaining time from server
   useEffect(() => {
     if (buildData.loginId === "" || buildData.buildNumber === "") {
-      return; // Don't make request if data not loaded or missing
+      return;
     }
     const getRemainingTime = async () => {
       try {
@@ -47,13 +51,16 @@ const Tracker = () => {
         );
         setIsPaused(remainingTime.data.session.isPaused);
         setIsSessionActive(true);
-        setTimeRemaining(Math.floor(remainingTime.data.timeLeft / 1000)); // Convert milliseconds to seconds
+        setTimeRemaining(Math.floor(remainingTime.data.timeLeft / 1000));
       } catch (error) {
         console.error("Error fetching remaining time:", error);
       }
     };
 
-    getRemainingTime();
+    const timeoutId = setTimeout(() => {
+      getRemainingTime();
+    }, 1000);
+    return () => clearTimeout(timeoutId);
   }, [buildData.loginId, buildData.buildNumber, isPaused]);
   // Timer logic
   useEffect(() => {
@@ -62,29 +69,48 @@ const Tracker = () => {
     if (isRunning && !isPaused && timeRemaining > 0) {
       interval = setInterval(() => {
         setTimeRemaining((prevTime) => {
-          if (prevTime <= 1) {
-            setIsRunning(false);
-            setTimeExceeded(true);
-            return 0;
+          if (timeExceeded) {
+            return prevTime + 1;
           }
-          return prevTime - 1;
+          if (prevTime <= 1) {
+            setTimeExceeded(true);
+            setShowTimeModal(true);
+            return prevTime + 1;
+          } else {
+            return prevTime - 1;
+          }
         });
       }, 1000);
     }
-
     return () => clearInterval(interval);
   }, [isRunning, isPaused, timeRemaining]);
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  // save defects to localStorage
+  const handleNextStep = () => {
+    localStorage.setItem("defects", defects.toString());
   };
-
-  const handleTimeExceeded = () => {
-    setTimeExceeded(true);
+  //Reschedule the time exceeded pop up
+  const handleNo = () => {
+    setShowTimeModal(false);
+    const nextPopUp = setTimeout(() => {
+      setShowTimeModal(true);
+    }, TIMEOUT * 1000);
+    return () => clearTimeout(nextPopUp);
+  };
+  //Automatic submission
+  const handleAutomaticSubmission = async () => {
+    const loginId = localStorage.getItem("loginId") ?? "";
+    const buildNumber = localStorage.getItem("buildNumber") ?? "";
+    const defects = localStorage.getItem("defects") ?? "0";
+    await axios.post("http://localhost:3000/session/finish", {
+      loginId,
+      buildNumber,
+      totalParts: 0,
+      defects: Number(defects),
+      submission: false,
+    });
+    setShowTimeModal(false);
+    localStorage.clear();
+    navigate("/");
   };
   return (
     <>
@@ -96,7 +122,10 @@ const Tracker = () => {
       </div>
       {isSessionActive ? (
         <div className="tracker-content">
-          <div className="timer-container">{formatTime(timeRemaining)}</div>
+          <div className={timeExceeded ? "time-exceeded" : "timer-container"}>
+            {timeExceeded ? "-" : ""}
+            {formatTime(timeRemaining)}
+          </div>
           <div className="controls-container">
             <PauseButton setIsPaused={setIsPaused} />
             <input
@@ -109,20 +138,26 @@ const Tracker = () => {
             <NavLink
               className="next-button"
               to="/submission"
-              onClick={() => {
-                localStorage.setItem("defects", defects.toString());
-              }}
+              onClick={handleNextStep}
             >
               NEXT
             </NavLink>
           </div>
         </div>
       ) : (
-        <span className="loader"></span>
+        <div className="loader-container">
+          <span className="loader"></span>
+        </div>
       )}
       {isPaused && <ResumeButton setIsPaused={setIsPaused} />}
-      {timeExceeded && (
-        <TimeExceededModal onClose={() => setTimeExceeded(false)} />
+      {showTimeModal && (
+        <TimeExceededModal
+          onClose={() => setShowTimeModal(false)}
+          nextStep={handleNextStep}
+          onNo={handleNo}
+          onTimeLimit={handleAutomaticSubmission}
+          timeout={TIMEOUT}
+        />
       )}
     </>
   );

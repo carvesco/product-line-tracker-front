@@ -133,7 +133,7 @@ const BuildDataModal = ({
   return (
     <div className="modal">
       <div className="modal-content">
-        <h2>Build Data</h2>
+        <h3>Build Data</h3>
         <p>Build Number: {buildData?.buildNumber}</p>
         <p>Number of Parts: {buildData?.numberOfParts}</p>
         <p>Time per Part: {buildData?.timePerPart}</p>
@@ -144,7 +144,6 @@ const BuildDataModal = ({
         >
           Start
         </NavLink>
-        {/*         <button onClick={onClose}>Close</button> */}
       </div>
     </div>
   );

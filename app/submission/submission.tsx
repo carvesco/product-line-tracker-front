@@ -5,13 +5,15 @@ import axios from "axios";
 const Submission = () => {
   const navigate = useNavigate();
   const [totalParts, setTotalParts] = useState(0);
+  const [loading, setLoading] = useState(false);
   const handleSubmit = async (event: React.FormEvent) => {
     const loginId = localStorage.getItem("loginId") ?? "";
     const buildNumber = localStorage.getItem("buildNumber") ?? "";
     const defects = localStorage.getItem("defects") ?? "0";
-
+    setLoading(true);
     if (!totalParts) {
       alert("Please enter the total amount of parts processed.");
+      setLoading(false);
       return;
     }
     await axios.post("http://localhost:3000/session/finish", {
@@ -21,7 +23,8 @@ const Submission = () => {
       defects: Number(defects),
       submission: true,
     });
-    navigate("/login");
+    localStorage.clear();
+    navigate("/");
   };
 
   return (
@@ -41,7 +44,7 @@ const Submission = () => {
           Back
         </button>
         <button className="submit-button" onClick={handleSubmit}>
-          Submit
+          {loading ? <span className="loader"></span> : "Submit"}
         </button>
       </div>
     </div>

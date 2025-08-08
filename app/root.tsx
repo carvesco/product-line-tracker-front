@@ -10,6 +10,17 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 
+export const meta: Route.MetaFunction = () => {
+  return [
+    { title: "Product Line Tracker" },
+    {
+      name: "description",
+      content: "Manufacturing production line tracking system",
+    },
+    { name: "author", content: "carvesco" },
+  ];
+};
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
