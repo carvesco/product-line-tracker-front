@@ -2,6 +2,8 @@ import { useNavigate } from "react-router";
 import "./submission.css";
 import { useState } from "react";
 import axios from "axios";
+
+const API_BASE_URL = import.meta.env.VITE_BACKENDURL || "http://localhost:3000";
 const Submission = () => {
   const navigate = useNavigate();
   const [totalParts, setTotalParts] = useState(0);
@@ -16,7 +18,7 @@ const Submission = () => {
       setLoading(false);
       return;
     }
-    await axios.post("http://localhost:3000/session/finish", {
+    await axios.post(`${API_BASE_URL}/session/finish`, {
       loginId,
       buildNumber,
       totalParts,

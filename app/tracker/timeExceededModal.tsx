@@ -48,7 +48,6 @@ const timeExceededModal = ({
           </NavLink>
           <button onClick={onNo}>No</button>
         </div>
-        <button onClick={onClose}>Close</button>
       </div>
     </div>
   );

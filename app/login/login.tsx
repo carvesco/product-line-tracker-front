@@ -4,11 +4,13 @@ import {
   useActionData,
   useNavigation,
   NavLink,
+  useNavigate,
 } from "react-router";
 import "./login.css";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_BACKENDURL || "http://localhost:3000";
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const loginId = formData.get("LoginId");
@@ -20,18 +22,16 @@ export const action: ActionFunction = async ({ request }) => {
     return { error: "Please fill in all fields" };
   }
   try {
-    let res = await axios.post("http://localhost:3000/session/", {
+    let res = await axios.post(`${API_BASE_URL}/session/`, {
       loginId,
       buildNumber,
     });
-    console.log("Received response from server:", res.data);
     buildData = {
       loginId: loginId,
       buildNumber: buildNumber,
       numberOfParts: res.data.buildData.numberOfParts,
       timePerPart: res.data.buildData.timePerPart,
     };
-    console.log("Received build data:", buildData);
   } catch (error) {
     console.error("Error during login:", error);
     return { error: "Login failed. Please try again." };
@@ -44,9 +44,42 @@ const login = () => {
   const [buildData, setBuildData] = useState(null);
   const actionData = useActionData() as any;
   const navigation = useNavigation();
+  const navigate = useNavigate();
 
   // Check if form is being submitted
   const isSubmitting = navigation.state === "submitting";
+
+  // Check if a session is active
+  const getSession = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/session/active`);
+      if (response?.data?.session?.isActive) {
+        console.log(response.data);
+
+        localStorage.setItem("loginId", response.data.session.loginId || "");
+        localStorage.setItem(
+          "buildNumber",
+          response.data.session.buildNumber?.toString() || ""
+        );
+        localStorage.setItem(
+          "numberOfParts",
+          response.data.buildData?.numberOfParts?.toString() || ""
+        );
+        localStorage.setItem(
+          "timePerPart",
+          response.data.buildData?.timePerPart?.toString() || ""
+        );
+        navigate("/tracker");
+      }
+      return;
+    } catch (error) {
+      console.error("Error fetching session:", error);
+      return;
+    }
+  };
+  useEffect(() => {
+    getSession();
+  }, []);
 
   // Open modal when action returns success
   useEffect(() => {
@@ -121,7 +154,7 @@ const BuildDataModal = ({
     );
     try {
       // Notify backend that session has started
-      await axios.post("http://localhost:3000/session/start", {
+      await axios.post(`${API_BASE_URL}/session/start`, {
         loginId: buildData?.loginId,
         buildNumber: buildData?.buildNumber,
       });

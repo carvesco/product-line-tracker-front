@@ -6,8 +6,10 @@ import axios from "axios";
 import PauseButton from "./pauseButton/pauseButton";
 import ResumeButton from "./resumeButton/resumeButton";
 import { formatTime } from "./timeExceededModal";
+
+const API_BASE_URL = import.meta.env.VITE_BACKENDURL || "http://localhost:3000";
 const Tracker = () => {
-  const TIMEOUT = 30;
+  const TIMEOUT = 600;
   const navigate = useNavigate();
   const [timeExceeded, setTimeExceeded] = useState(false);
   const [showTimeModal, setShowTimeModal] = useState(false);
@@ -31,7 +33,7 @@ const Tracker = () => {
     exceededRequestSent.current = true;
     const loginId = localStorage.getItem("loginId") ?? "";
     const buildNumber = localStorage.getItem("buildNumber") ?? "";
-    await axios.post("http://localhost:3000/session/exceeded", {
+    await axios.post(`${API_BASE_URL}/session/exceeded`, {
       loginId,
       buildNumber,
     });
@@ -62,8 +64,18 @@ const Tracker = () => {
     const getRemainingTime = async () => {
       try {
         let remainingTime = await axios.get(
-          `http://localhost:3000/session/time-left?loginId=${buildData.loginId}&buildNumber=${buildData.buildNumber}`
+          `${API_BASE_URL}/session/time-left?loginId=${buildData.loginId}&buildNumber=${buildData.buildNumber}`
         );
+        if (remainingTime.data.timeLeft < 0) {
+          await ExceededTimeRequest();
+          setTimeExceeded(true);
+          setShowTimeModal(true);
+          setIsSessionActive(true);
+          setTimeRemaining(
+            Math.abs(Math.floor(remainingTime.data.timeLeft / 1000))
+          );
+          return;
+        }
         setIsPaused(remainingTime.data.session.isPaused);
         setIsSessionActive(true);
         setTimeRemaining(Math.floor(remainingTime.data.timeLeft / 1000));
@@ -117,7 +129,7 @@ const Tracker = () => {
     const loginId = localStorage.getItem("loginId") ?? "";
     const buildNumber = localStorage.getItem("buildNumber") ?? "";
     const defects = localStorage.getItem("defects") ?? "0";
-    await axios.post("http://localhost:3000/session/finish", {
+    await axios.post(`${API_BASE_URL}/session/finish`, {
       loginId,
       buildNumber,
       totalParts: 0,

@@ -1,6 +1,7 @@
 import "./resumeButton.css";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_BACKENDURL || "http://localhost:3000";
 const ResumeButton = ({
   setIsPaused,
 }: {
@@ -9,7 +10,7 @@ const ResumeButton = ({
   const handleResume = async () => {
     const loginId = localStorage.getItem("loginId");
     const buildNumber = localStorage.getItem("buildNumber");
-    await axios.post("http://localhost:3000/session/resume", {
+    await axios.post(`${API_BASE_URL}/session/resume`, {
       loginId,
       buildNumber,
     });

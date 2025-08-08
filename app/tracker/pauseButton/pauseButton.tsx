@@ -1,5 +1,7 @@
 import axios from "axios";
 import "./pauseButton.css";
+
+const API_BASE_URL = import.meta.env.VITE_BACKENDURL || "http://localhost:3000";
 const PauseButton = ({
   setIsPaused,
 }: {
@@ -8,7 +10,7 @@ const PauseButton = ({
   const handlePause = async () => {
     const loginId = localStorage.getItem("loginId");
     const buildNumber = localStorage.getItem("buildNumber");
-    await axios.post("http://localhost:3000/session/pause", {
+    await axios.post(`${API_BASE_URL}/session/pause`, {
       loginId,
       buildNumber,
     });
